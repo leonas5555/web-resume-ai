@@ -10,7 +10,7 @@ permissions:
 
 env:
   IMAGE_REGION: us-west1
-  IMAGE_NAME: ${{ env.IMAGE_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/run-service-img/ssr-service:${{ github.sha }}
+  IMAGE_NAME: $IMAGE_REGION-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/run-service-img/ssr-service:${{ github.sha }}
 
 
 
