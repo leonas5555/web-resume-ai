@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  issues: write
+
 env:
   IMAGE_NAME: us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/run-service-img/ssr-service:${{ github.sha }}
   REGION: us-west1
