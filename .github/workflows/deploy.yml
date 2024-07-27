@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  issues: write
+
 env:
   IMAGE_NAME: us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/run-service-img/ssr-service:${{ github.sha }}
   REGION: us-west1
@@ -30,9 +33,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Docker image
-        run: ./gradlew bootBuildImage --imageName=$IMAGE_NAME
-
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
@@ -44,6 +44,9 @@ jobs:
       - name: "Docker auth"
         run: |-
           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build Docker image
+        run: ./gradlew bootBuildImage --imageName=$IMAGE_NAME
 
       - name: Push Docker image to GCP Container Registry
         run: |
