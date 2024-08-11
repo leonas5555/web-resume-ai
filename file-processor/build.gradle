@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+    id 'io.quarkus' version "3.13.1"
+}
+
+ext {
+    quarkusPluginId = 'io.quarkus'
+    quarkusPluginVersion = '3.13.1'
+    quarkusPlatformGroupId = 'io.quarkus.platform'
+    quarkusPlatformArtifactId = 'quarkus-bom'
+    quarkusPlatformVersion = '3.13.1'
+}
+
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+    mavenLocal()
+}
+
+dependencies {
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation 'io.quarkus:quarkus-rest'
+    implementation 'io.quarkus:quarkus-rest-jackson'
+    implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.cloudevents:cloudevents-core:2.3.0'
+    implementation 'io.cloudevents:cloudevents-json-jackson:2.3.0'
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:gcloud'
+}
+
+group 'com.web.resume.ai'
+version '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+test {
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+}
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
