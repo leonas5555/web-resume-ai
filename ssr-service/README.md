@@ -1,4 +1,6 @@
-# web-resume-ai
+# ssr-service
+
+service template TBD
 
 ```properties
 #Gradle properties
