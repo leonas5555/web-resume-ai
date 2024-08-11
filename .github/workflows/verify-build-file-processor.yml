@@ -6,7 +6,7 @@ on:
       - file-processor/**
 
 jobs:
-  build-ssr-service:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:

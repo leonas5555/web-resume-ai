@@ -1,4 +1,4 @@
-name: Deploy to Cloud Run SSR Service
+name: Deploy to Cloud Run File Processor
 
 on:
   push:
