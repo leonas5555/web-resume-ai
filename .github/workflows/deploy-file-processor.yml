@@ -68,7 +68,7 @@ jobs:
         run: |
           gcloud run deploy file-processor \
             --image $IMAGE_NAME \
-            --service-account ${{ secrets.GCP_SA_NAME }}
+            --service-account ${{ secrets.GCP_SA_NAME }} \
             --region ${{ secrets.GCP_RUN_REGION }} \
             --platform managed \
             --allow-unauthenticated
