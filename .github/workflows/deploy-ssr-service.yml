@@ -65,6 +65,7 @@ jobs:
         run: |
           gcloud run deploy ssr-service \
             --image $IMAGE_NAME \
+            --service-account ${{ secrets.GCP_SA_NAME }}
             --region ${{ secrets.GCP_RUN_REGION }} \
             --platform managed \
             --allow-unauthenticated
