@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'ssr-service/**'
+  workflow_dispatch:
 
 permissions:
   issues: write
