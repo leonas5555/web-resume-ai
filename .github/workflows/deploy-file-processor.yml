@@ -19,6 +19,7 @@ env:
 
 jobs:
   build-and-deploy:
+    name: Deploy to Cloud Run
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -72,3 +73,41 @@ jobs:
             --region ${{ secrets.GCP_RUN_REGION }} \
             --platform managed \
             --allow-unauthenticated
+
+  apply-terraform:
+    name: Apply Terraform
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    needs:
+      - build-and-deploy
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        id: apply
+        env:
+          TF_VAR_project: ${{ secrets.GCP_PROJECT }}
+          TF_VAR_region: ${{ secrets.GCP_REGION }}
+          TF_VAR_name: ${{ secrets.GCP_SA_NAME }}
+          TF_VAR_bucket_name: ${{ secrets.GCP_BUCKET_NAME }}
+        run: terraform apply -auto-approve
+
+      - name: Output Terraform State
+        run: terraform output

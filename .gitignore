@@ -1,2 +1,6 @@
-key.json
+*_key.json
 gradle.properties
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform/**
