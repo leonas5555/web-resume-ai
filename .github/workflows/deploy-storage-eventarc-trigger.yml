@@ -26,9 +26,7 @@ jobs:
           terraform_version: 1.5.0
 
       - name: Terraform Init
-        run: terraform init \ 
-          -backend-config="bucket=${{ secrets.GCP_CONFIG_BUCKET_NAME }}" \
-          -backend-config="prefix=terraform/state"
+        run: terraform init -backend-config="bucket=${{ secrets.GCP_CONFIG_BUCKET_NAME }}" -backend-config="prefix=terraform/state"
 
       - name: Terraform Apply
         id: apply
