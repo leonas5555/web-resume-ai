@@ -22,7 +22,7 @@ public class GoogleCloudStorageService implements StorageService {
     public byte[] downloadFile(String bucketName, String fileName) {
         Blob blob = storage.get(BlobId.of(bucketName, fileName));
         if (blob == null) {
-            throw new IllegalArgumentException("File not found in bucket");
+            throw new RuntimeException("File not found in bucket");
         }
         return blob.getContent();
     }

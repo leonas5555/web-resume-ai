@@ -1,11 +1,12 @@
 package com.web.resume.ai.impl;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.web.resume.ai.config.StorageType;
 import com.web.resume.ai.interfaces.StorageService;
 import jakarta.enterprise.context.ApplicationScoped;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 import java.io.IOException;
 
@@ -13,15 +14,21 @@ import java.io.IOException;
 @StorageType("s3")
 public class AwsS3StorageService implements StorageService {
 
-    private final AmazonS3 s3Client;
+
+    private final S3Client s3Client;
 
     public AwsS3StorageService() {
-        this.s3Client = AmazonS3ClientBuilder.defaultClient();
+        this.s3Client = S3Client.builder().build();
     }
 
     @Override
     public byte[] downloadFile(String bucketName, String fileName) {
-        try (S3ObjectInputStream s3is = s3Client.getObject(bucketName, fileName).getObjectContent()) {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileName)
+                .build();
+
+        try (ResponseInputStream<GetObjectResponse> s3is = s3Client.getObject(getObjectRequest)) {
             return s3is.readAllBytes();
         } catch (IOException e) {
             throw new RuntimeException("Failed to read S3 object content", e);

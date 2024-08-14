@@ -22,10 +22,14 @@ dependencies {
     implementation 'io.quarkus:quarkus-rest'
     implementation 'io.quarkus:quarkus-rest-jackson'
     implementation 'io.quarkus:quarkus-arc'
+    // Blob Storages
     implementation('com.google.cloud:google-cloud-storage:2.14.0') {
         exclude group: 'io.grpc', module: 'grpc-netty-shaded'
     }
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.767'
+    implementation 'software.amazon.awssdk:s3:2.20.0'
+    // text extraction
+    implementation 'org.apache.tika:tika-core:2.9.2'
+    // tests implementation
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'org.testcontainers:testcontainers'
