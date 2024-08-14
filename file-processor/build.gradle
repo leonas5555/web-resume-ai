@@ -22,8 +22,10 @@ dependencies {
     implementation 'io.quarkus:quarkus-rest'
     implementation 'io.quarkus:quarkus-rest-jackson'
     implementation 'io.quarkus:quarkus-arc'
-    implementation 'io.cloudevents:cloudevents-core:2.3.0'
-    implementation 'io.cloudevents:cloudevents-json-jackson:2.3.0'
+    implementation('com.google.cloud:google-cloud-storage:2.14.0') {
+        exclude group: 'io.grpc', module: 'grpc-netty-shaded'
+    }
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.767'
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'org.testcontainers:testcontainers'
