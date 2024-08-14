@@ -22,8 +22,14 @@ dependencies {
     implementation 'io.quarkus:quarkus-rest'
     implementation 'io.quarkus:quarkus-rest-jackson'
     implementation 'io.quarkus:quarkus-arc'
-    implementation 'io.cloudevents:cloudevents-core:2.3.0'
-    implementation 'io.cloudevents:cloudevents-json-jackson:2.3.0'
+    // Blob Storages
+    implementation('com.google.cloud:google-cloud-storage:2.14.0') {
+        exclude group: 'io.grpc', module: 'grpc-netty-shaded'
+    }
+    implementation 'software.amazon.awssdk:s3:2.20.0'
+    // text extraction
+    implementation 'org.apache.tika:tika-core:2.9.2'
+    // tests implementation
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'org.testcontainers:testcontainers'

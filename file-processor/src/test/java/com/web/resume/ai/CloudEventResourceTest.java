@@ -1,6 +1,5 @@
 package com.web.resume.ai;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +20,7 @@ class CloudEventResourceTest {
                 .when()
                 .post("/ce")
                 .then()
-                .statusCode(200);
+                .statusCode(400);
     }
 
 }
