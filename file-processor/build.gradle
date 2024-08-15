@@ -1,14 +1,14 @@
 plugins {
     id 'java'
-    id 'io.quarkus' version "3.13.1"
+    id 'io.quarkus' version "3.13.2"
 }
 
 ext {
     quarkusPluginId = 'io.quarkus'
-    quarkusPluginVersion = '3.13.1'
+    quarkusPluginVersion = '3.13.2'
     quarkusPlatformGroupId = 'io.quarkus.platform'
     quarkusPlatformArtifactId = 'quarkus-bom'
-    quarkusPlatformVersion = '3.13.1'
+    quarkusPlatformVersion = '3.13.2'
 }
 
 repositories {
@@ -18,23 +18,29 @@ repositories {
 }
 
 dependencies {
+
+
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-rest'
     implementation 'io.quarkus:quarkus-rest-jackson'
     implementation 'io.quarkus:quarkus-arc'
-    // Blob Storages
-    implementation('com.google.cloud:google-cloud-storage:2.14.0') {
-        exclude group: 'io.grpc', module: 'grpc-netty-shaded'
-    }
-    implementation 'software.amazon.awssdk:s3:2.20.0'
-    // text extraction
-    implementation 'org.apache.tika:tika-core:2.9.2'
+    implementation 'io.quarkus:quarkus-awt'
+
+    implementation 'io.quarkiverse.amazonservices:quarkus-amazon-s3'
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:quarkus-amazon-services-bom:${quarkusPlatformVersion}")
+    implementation 'software.amazon.awssdk:url-connection-client:2.20.0'
+    implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-storage'
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:quarkus-google-cloud-services-bom:${quarkusPlatformVersion}")
+
+    implementation 'org.jboss.logging:commons-logging-jboss-logging'
+    implementation 'io.quarkiverse.tika:quarkus-tika:2.0.3'
+
     // tests implementation
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
-    testImplementation 'org.testcontainers:testcontainers'
-    testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.testcontainers:gcloud'
+
+
+
 }
 
 group 'com.web.resume.ai'
@@ -55,4 +61,9 @@ compileJava {
 
 compileTestJava {
     options.encoding = 'UTF-8'
+}
+configurations {
+    configureEach {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
 }
