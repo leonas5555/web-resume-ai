@@ -3,6 +3,7 @@ package com.web.resume.ai.impl;
 import com.web.resume.ai.config.StorageType;
 import com.web.resume.ai.interfaces.StorageService;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -15,7 +16,8 @@ import java.io.IOException;
 public class AwsS3StorageService implements StorageService {
 
 
-    private final S3Client s3Client;
+    @Inject
+    S3Client s3Client;
 
     public AwsS3StorageService() {
         this.s3Client = S3Client.builder().build();

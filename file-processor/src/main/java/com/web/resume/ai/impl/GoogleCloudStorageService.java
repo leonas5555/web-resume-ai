@@ -7,12 +7,15 @@ import com.google.cloud.storage.StorageOptions;
 import com.web.resume.ai.config.StorageType;
 import com.web.resume.ai.interfaces.StorageService;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 @StorageType("gcs")
 public class GoogleCloudStorageService implements StorageService {
 
-    private final Storage storage;
+    @Inject
+    Storage storage;
+    //private final Storage storage;
 
     public GoogleCloudStorageService() {
         this.storage = StorageOptions.getDefaultInstance().getService();

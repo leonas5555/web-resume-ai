@@ -1,0 +1,17 @@
+[
+  {
+    "name": "org.apache.commons.logging.impl.LogFactoryImpl",
+    "methods": [
+      {
+        "name": "handleThrowable",
+        "parameterTypes": ["java.lang.Throwable"]
+      }
+    ]
+  },
+  {
+    "name": "org.apache.pdfbox.pdmodel.PDDocument",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  }
+]
