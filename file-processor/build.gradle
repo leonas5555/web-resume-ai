@@ -39,6 +39,10 @@ dependencies {
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
 
+    testImplementation 'io.aiven:testcontainers-fake-gcs-server:0.1.0'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'io.quarkus:quarkus-junit5-mockito'
+
 
 
 }

@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jboss.logging.Logger;
@@ -16,6 +17,8 @@ import org.jboss.logging.Logger.Level;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.Instant;
 
 @Path("/ce")
 public class CloudEventResource {
@@ -28,6 +31,23 @@ public class CloudEventResource {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Logger LOGGER = Logger.getLogger(CloudEventResource.class.getName());
+
+
+    @POST
+    @Path("/text")
+    @Consumes({ "application/pdf", "application/vnd.oasis.opendocument.text" })
+    @Produces(MediaType.TEXT_PLAIN)
+    public String extractText(InputStream stream) {
+        Instant start = Instant.now();
+
+        String text = parser.getText(stream);
+
+        Instant finish = Instant.now();
+
+        LOGGER.info(Duration.between(start, finish).toMillis() + " mls have passed");
+
+        return text;
+    }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
