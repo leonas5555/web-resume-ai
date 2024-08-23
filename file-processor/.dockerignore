@@ -1,4 +1,3 @@
-*
 !build/*.so
 !build/*-runner
 !build/*-runner.jar
