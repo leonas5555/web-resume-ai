@@ -1,98 +1,79 @@
 package com.web.resume.ai;
 
-import com.google.cloud.NoCredentials;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.BucketInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
-import com.web.resume.ai.config.StorageType;
-import com.web.resume.ai.impl.GoogleCloudStorageService;
-import com.web.resume.ai.interfaces.StorageService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.web.resume.ai.resources.CloudEventResource;
-import io.aiven.testcontainers.fakegcsserver.FakeGcsServerContainer;
 import io.quarkus.test.InjectMock;
-import io.quarkus.test.Mock;
-import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.tika.TikaParser;
+import io.quarkus.test.junit.mockito.MockitoConfig;
+import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.core.eventbus.EventBus;
+import io.vertx.mutiny.core.eventbus.Message;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.BeforeAll;
+import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mockito;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-
-import static io.restassured.RestAssured.given;
-
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 @QuarkusTest
 class CloudEventResourceTest {
 
-    /*
+    @Inject
+    CloudEventResource cloudEventResource;
 
-    private static StorageService storageService;
+    @InjectMock
+    @MockitoConfig(convertScopes = true)
+    EventBus eventBus;
 
-    private static final FakeGcsServerContainer FAKE_GCS_SERVER_CONTAINER = new FakeGcsServerContainer();
+    private ObjectMapper objectMapper;
 
-    */
-
-
-    @BeforeAll
-    static void setup() {
-        // FAKE_GCS_SERVER_CONTAINER.start();
-        /*StorageService storageService = Mockito.mock(StorageService.class);
-        Mockito.when(storageService.downloadFile(Mockito.anyString(), Mockito.anyString()))
-                .thenAnswer(invocation -> Files.readAllBytes(Paths.get("src/main/resources/test-file.pdf")));
-        QuarkusMock.installMockForType(storageService, StorageService.class);*/
+    @BeforeEach
+    public void setUp() {
+        objectMapper = new ObjectMapper();
     }
 
     @Test
-    void testCeEndpoint() throws IOException {
+    public void testReceiveMessage_Success() throws Exception {
+        // Arrange
+        JsonNode mockCloudEventJson = objectMapper.readTree("{\"event\": \"file-uploaded\", \"data\": \"test\"}");
 
-        /*final Storage storage = StorageOptions.newBuilder()
-                .setCredentials(NoCredentials.getInstance())
-                .setHost(FAKE_GCS_SERVER_CONTAINER.url())
-                .setProjectId("test-project")
-                .build()
-                .getService();
+        Message<String> mockMessage = mock(Message.class);
 
-        Bucket bucket = storage.get("test-bucket");
-        if (bucket == null) {
-            bucket = storage.create(BucketInfo.of("test-bucket"));
-        }
+        when(mockMessage.body()).thenReturn("File processed successfully");
+        // Mock EventBus response
+        when(eventBus.<String>request(any(), any())).thenReturn(Uni.createFrom().item(mockMessage));
 
-        byte[] fileContent = Files.readAllBytes(Paths.get("src/main/resources/test-file.pdf"));
+        // Act
+        Uni<Response> result = cloudEventResource.receiveMessage(mockCloudEventJson);
 
+        // Assert
+        Response response = result.await().indefinitely();
+        assertNotNull(response);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("File processed successfully", response.getEntity());
+    }
 
-        bucket.create("example-file.pdf", fileContent);
+    @Test
+    public void testReceiveMessage_Failure() throws Exception {
+        // Arrange
+        JsonNode mockCloudEventJson = objectMapper.readTree("{\"event\": \"file-uploaded\", \"data\": \"test\"}");
 
-        storageService = Mockito.mock(GoogleCloudStorageService.class);
-        Mockito.when(storageService.downloadFile(Mockito.anyString(), Mockito.anyString()))
-                .thenAnswer(invocation -> {
-                    String bucketName = invocation.getArgument(0);
-                    String fileName = invocation.getArgument(1);
-                    return storage.readAllBytes(bucketName, fileName);
-                });
+        // Mock EventBus failure
+        when(eventBus.<String>request(any(), any()))
+                .thenReturn(Uni.createFrom().failure(new RuntimeException("Processing failed")));
 
-        byte[] file = storageService.downloadFile("test-bucket", "example-file.pdf");
+        // Act
+        Uni<Response> result = cloudEventResource.receiveMessage(mockCloudEventJson);
 
-        System.out.println("file is : " + Arrays.toString(file)); */
-
-
-        /*String sampleJson = "{\"bucket\":\"test-bucket\",\"name\":\"example-file.pdf\"}";
-
-       given()
-                .contentType("application/json")
-                .body(sampleJson)
-                .when()
-                .post("/ce")
-                .then()
-                .statusCode(400);*/
+        // Assert
+        Response response = result.await().indefinitely();
+        assertNotNull(response);
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("Processing failed"));
     }
 
 }
