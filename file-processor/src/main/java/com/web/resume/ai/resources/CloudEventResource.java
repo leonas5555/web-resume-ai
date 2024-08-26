@@ -1,9 +1,11 @@
 package com.web.resume.ai.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.web.resume.ai.interfaces.StorageService;
+import com.web.resume.ai.util.JsonValidationUtil;
+import com.web.resume.ai.util.PdfParserUtil;
 import io.quarkus.tika.TikaParser;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -12,7 +14,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jboss.logging.Logger;
-import org.jboss.logging.Logger.Level;
 
 
 import java.io.ByteArrayInputStream;
@@ -27,8 +28,9 @@ public class CloudEventResource {
     StorageService storageService;
     @Inject
     TikaParser parser;
+    @Inject
+    PdfParserUtil pdfParserUtil;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Logger LOGGER = Logger.getLogger(CloudEventResource.class.getName());
 
@@ -51,52 +53,51 @@ public class CloudEventResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response receiveMessage(String cloudEventJson) {
+    public Uni<Response> receiveMessage(JsonNode cloudEventJson) {
 
         LOGGER.info("Received CloudEvent: " + cloudEventJson);
         LOGGER.info("StorageService is " + (storageService == null ? "null" : "initialized"));
 
-        try {
-            JsonNode rootNode = objectMapper.readTree(cloudEventJson);
+        return JsonValidationUtil.validateStorageCloudEvent(cloudEventJson)
+                .onItem().transformToUni(ignored -> {
+                    // Extract bucketName and fileName after validation
+                    String bucketName = cloudEventJson.get("bucket").asText();
+                    String fileName = cloudEventJson.get("name").asText();
 
-            JsonNode bucketNode = rootNode.get("bucket");
-            JsonNode nameNode = rootNode.get("name");
-
-            if (bucketNode == null || nameNode == null) {
-                LOGGER.log(Level.ERROR, "Missing required fields in the JSON: bucket or name");
-                return Response.status(Response.Status.BAD_REQUEST).entity("Missing required fields: bucket or name").build();
-            }
-
-            String bucketName = bucketNode.asText();
-            String fileName = nameNode.asText();
-
-            if (bucketName.isEmpty() || fileName.isEmpty()) {
-                LOGGER.log(Level.ERROR, "Requered fields are empty");
-                return Response.status(Response.Status.BAD_REQUEST).entity("Missing required fields: bucket or name").build();
-            }
-
-            if (fileName.endsWith(".pdf")) {
-                processPdfFile(bucketName, fileName);
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.ERROR, "Error processing a file", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error in processing").build();
-        }
-
-        return Response.ok().build();
+                    // Check if the file is a PDF
+                    if (fileName.endsWith(".pdf")) {
+                        // Call the processPdfFile method which returns a Uni<String> with the extracted text
+                        return processPdfFile(bucketName, fileName)
+                                .onItem().transform(extractedText -> {
+                                    LOGGER.info("Successfully processed PDF and extracted text.");
+                                    // Return the extracted text as part of the response
+                                    return Response.ok().entity(extractedText).build();
+                                });
+                    } else {
+                        // If not a PDF, just return OK to commit consumed message.
+                        return Uni.createFrom().item(Response.ok().build());
+                    }
+                })
+                .onFailure().recoverWithItem(throwable -> {
+                    LOGGER.error("Error processing the file", throwable);
+                    // Return an internal server error response if something fails
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                            .entity("Error in processing").build();
+                });
     }
-    private void processPdfFile(String bucketName, String fileName) {
-        try {
-            byte[] fileContent = storageService.downloadFile(bucketName, fileName);
-            try (InputStream inputStream = new ByteArrayInputStream(fileContent)) {
-
-                String text = parser.getText(inputStream);
-
-                LOGGER.info("Extracted text: " + text);
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.ERROR, "Error processing pdf file", e);
-            throw new RuntimeException(e);
-        }
+    private Uni<String> processPdfFile(String bucketName, String fileName) {
+        return storageService.downloadFile(bucketName, fileName)
+                .onItem().transformToUni(fileContent -> {
+                    // Create an InputStream from the downloaded byte array
+                    try (InputStream inputStream = new ByteArrayInputStream(fileContent)) {
+                        // Extract the text asynchronously using extractTextAsync
+                        return pdfParserUtil.extractTextAsync(inputStream)
+                                .onItem().invoke(text -> LOGGER.info("Extracted text: " + text))
+                                .onFailure().invoke(e -> LOGGER.error("Error processing PDF file", e));
+                    } catch (Exception e) {
+                        LOGGER.error("Error creating InputStream from file content", e);
+                        return Uni.createFrom().failure(new RuntimeException("Error creating InputStream from file content", e));
+                    }
+                });
     }
 }
