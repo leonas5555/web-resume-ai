@@ -26,6 +26,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-awt'
 
+    implementation("io.quarkus:quarkus-vertx")
     implementation 'io.quarkiverse.amazonservices:quarkus-amazon-s3'
     implementation enforcedPlatform("${quarkusPlatformGroupId}:quarkus-amazon-services-bom:${quarkusPlatformVersion}")
     implementation 'software.amazon.awssdk:url-connection-client:2.20.0'
