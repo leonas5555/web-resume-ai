@@ -21,8 +21,9 @@ Usage: RAG system data ingestion.
 5. Event-driven and asynchronous programming using Vert.x and SmalRye Mutiny, 
 non-blocking approach, even for main event thread blocking operation such as file downloading and text parsing (offload to separate Worker thread pools)
 6. Code decoupling and possible workloads distribution (in case of Vert.x cluster) using Vert.x EvenBus
-7. GCP Eventarc trigger creation using Terraform that allows maintaining infrastructure in code.
-8. GitHub Actions for CI/CD , to verify , build and deploy service and related infrastructure. 
+7. Configurable storage service provider options in application.properities AWS S3 or GCS. 
+8. GCP Eventarc trigger creation using Terraform that allows maintaining infrastructure in code.
+9. GitHub Actions for CI/CD , to verify , build and deploy service and related infrastructure. 
 
 In total that approach saves resources and money in running the function in Cloud 
 and at the same time doesn't reduce service availability
