@@ -15,11 +15,11 @@ Usage: RAG system data ingestion.
 
 ### Features
 1. Built with Quarkus framework
-2. Functional cloud-native containerized microservice.
+2. Functional serverless cloud-native containerized microservice.
 3. Almost instant service start-up on requests using graalVM native image build.
 4. Automatic Scaling in high workloads and scale to 0 , when no requests using Cloud Run.
 5. Event-driven and asynchronous programming using Vert.x and SmalRye Mutiny, 
-non-blocking approach, even for main event thread blocking operation such as file downloading and text parsing using Worker thread pools
+non-blocking approach, even for main event thread blocking operation such as file downloading and text parsing (offload to separate Worker thread pools)
 6. Code decoupling and possible workloads distribution (in case of Vert.x cluster) using Vert.x EvenBus
 7. GCP Eventarc trigger creation using Terraform that allows maintaining infrastructure in code.
 8. GitHub Actions for CI/CD , to verify , build and deploy service and related infrastructure. 
