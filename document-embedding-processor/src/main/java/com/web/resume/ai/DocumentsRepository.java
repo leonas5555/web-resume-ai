@@ -21,14 +21,14 @@ public class DocumentsRepository {
     }
 
     // Check if document exists by text
-    public boolean documentExistsByText(String text) {
+    public Boolean documentExistsByText(String text) {
         Session session = sessionFactory.openSession();
         String cypherQuery = "MATCH (d:Document {text: $text}) RETURN count(d) > 0";
         return session.queryForObject(Boolean.class, cypherQuery, Map.of("text", text));
     }
 
     // Check if document exists by embedding (exact match)
-    public boolean documentExistsByEmbedding(Embedding embedding) {
+    public Boolean documentExistsByEmbedding(List<Float> embedding) {
         Session session = sessionFactory.openSession();
         String cypherQuery = "MATCH (d:Document {embedding: $embedding}) RETURN count(d) > 0";
         return session.queryForObject(Boolean.class, cypherQuery, Map.of("embedding", embedding));
@@ -47,6 +47,8 @@ public class DocumentsRepository {
         String cypherQuery = "MATCH (d:Document {embedding: $embedding}) RETURN d LIMIT 1";
         return session.queryForObject(Document.class, cypherQuery, Map.of("embedding", embedding));
     }
+
+    // Retrieve all documents
     public Collection<Document> findAll() {
         return sessionFactory.openSession().loadAll(Document.class);
     }

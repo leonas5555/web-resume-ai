@@ -7,7 +7,9 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.store.embedding.neo4j.Neo4jEmbeddingStore;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
@@ -25,24 +27,21 @@ public class EmbeddingResource {
     @Inject
     DocumentsRepository documentsRepository;
 
-    @GET
+    @POST
+    @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
-    public String hello() {
-
-        String text = "Hello, how are you?";
+    public String embedText(String text) {
 
         if (documentsRepository.documentExistsByText(text)) {
             LOGGER.info( "Document exists. skip embedding");
         } else {
-            TextSegment textSegment = TextSegment.from("Hello, how are you?");
+            TextSegment textSegment = TextSegment.from(text);
+            LOGGER.info( "Sending text to embedding model");
             Response<Embedding> response = model.embed(textSegment);
+            LOGGER.info( "Embedding vector received");
+            LOGGER.info( "Storing embedding vector to database");
             store.add(response.content(), textSegment);
         }
-
-        Document document = documentsRepository.getDocumentByText(text);
-
-        LOGGER.info("Document: " + document);
-
         return "Text embedding done";
     }
 }
