@@ -8,6 +8,7 @@
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/document-embedding-processor" />
     <file type="web" url="file://$PROJECT_DIR$/file-processor" />
     <file type="web" url="file://$PROJECT_DIR$/ssr-service" />
   </component>
