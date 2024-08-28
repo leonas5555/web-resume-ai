@@ -4,3 +4,4 @@ gradle.properties
 *.tfstate.backup
 *.tfvars
 .terraform
+*.env
