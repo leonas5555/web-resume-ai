@@ -24,11 +24,10 @@ public class FileProcessingService {
     @Inject
     PdfParserUtil pdfParserUtil;
 
-    @ConsumeEvent("file-processing")  // This will now be asynchronous by returning a Uni
+    @ConsumeEvent("file-processing")
     public Uni<String> processCloudEvent(JsonNode cloudEventJson) {
         LOGGER.info("Received CloudEvent for processing: " + cloudEventJson);
 
-        // The validateStorageCloudEvent should also return a Uni to make it asynchronous
         return JsonValidationUtil.validateStorageCloudEvent(cloudEventJson)
                 .onItem().transformToUni(ignored -> {
                     String bucketName = cloudEventJson.get("bucket").asText();
